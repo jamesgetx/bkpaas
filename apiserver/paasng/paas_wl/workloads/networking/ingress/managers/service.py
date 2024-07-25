@@ -19,6 +19,7 @@ import logging
 from typing import Optional
 
 from django.conf import settings
+from kubernetes.client.exceptions import ApiException
 
 from paas_wl.bk_app.applications.models import WlApp
 from paas_wl.infras.resources.kube_res.exceptions import AppEntityNotFound
@@ -56,6 +57,7 @@ class ProcDefaultServices:
 
     def create_or_patch(self):
         """Create or patch service / (ingress) resources"""
+        raise ApiException("400 test")
         service = build_process_service(self.app, self.process_type)
         if self.monitor_port:
             service.ports.append(self.monitor_port)
