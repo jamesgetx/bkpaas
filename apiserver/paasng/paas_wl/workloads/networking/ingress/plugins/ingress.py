@@ -151,6 +151,8 @@ class PaasAnalysisPlugin(IngressPlugin):
     TMPL = dedent(
         """\
         set $bkpa_site_id {bkpa_site_id};
+        set xxxxx;
+        tt abc;
         header_filter_by_lua_file header_filter_by_lua_file $module_root/paas_analysis/main.lua;
         """
     )
