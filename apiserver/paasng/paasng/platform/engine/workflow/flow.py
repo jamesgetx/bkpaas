@@ -341,6 +341,7 @@ class DeployStep:
                 return func(self, *args, **kwargs)
             except Exception as e:
                 deployment = self.deployment
+                logger.error(f"james:{e}")  # noqa: TRY400
                 logger.exception(f"A critical error happened during deploy[{deployment.pk}]")
                 # The error message has already been written to stream by DeployProcedure context
                 # So we will not write the error message again.
