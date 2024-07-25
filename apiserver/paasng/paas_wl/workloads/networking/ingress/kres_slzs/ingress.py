@@ -104,7 +104,7 @@ class IngressV1Beta1Serializer(AppEntitySerializer["ProcessIngress"]):
             },
             "spec": {"rules": rules, "tls": tls},
             "apiVersion": self.get_api_version_from_gvk(self.gvk_config),
-            "kind": "Ingress",
+            "kind": "Ingress1",
         }
 
         if original_obj:
@@ -266,7 +266,7 @@ class IngressV1Serializer(AppEntitySerializer["ProcessIngress"]):
             },
             "spec": {"rules": rules, "tls": tls},
             "apiVersion": self.get_api_version_from_gvk(self.gvk_config),
-            "kind": "Ingress",
+            "kind": "Ingress1",
         }
 
         if original_obj:
