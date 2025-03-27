@@ -1,6 +1,8 @@
 package v3
 
-import "github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/appdesc/buildconfig"
+import (
+	"github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/buildconfig"
+)
 
 // AppDescConfig specVersion: 3 版本的 app_desc
 type AppDescConfig struct {

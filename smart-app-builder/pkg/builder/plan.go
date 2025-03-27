@@ -11,7 +11,7 @@ import (
 	"golang.org/x/exp/maps"
 
 	"github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/appdesc"
-	bcfg "github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/appdesc/buildconfig"
+	bcfg "github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/buildconfig"
 )
 
 const AppDescFileName = "app_desc.yaml"
