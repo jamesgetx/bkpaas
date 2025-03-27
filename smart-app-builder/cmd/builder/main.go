@@ -17,8 +17,16 @@ const (
 )
 
 var (
-	sourceURL = flag.String("source-url", os.Getenv(SourceURLEnvVarKey), "The url of the source code.")
-	destURL   = flag.String("dest-url", os.Getenv(DestURLEnvVarKey), "The url of the s-mart artifact to put.")
+	sourceURL = flag.String(
+		"source-url",
+		os.Getenv(SourceURLEnvVarKey),
+		"The url of the source code, which begins with file:// or http(s)://",
+	)
+	destURL = flag.String(
+		"dest-url",
+		os.Getenv(DestURLEnvVarKey),
+		"The url of the s-mart artifact to put, which begins with file:// or http(s)://",
+	)
 )
 
 func main() {
@@ -26,11 +34,13 @@ func main() {
 
 	parseFlags(logger)
 
-	executor, err := builder.NewBuildExecutor(*sourceURL, *destURL)
+	executor, err := builder.NewBuildExecutor(logger, *sourceURL, *destURL)
 	if err != nil {
 		logger.Error(err, "failed to create build executor")
 		os.Exit(1)
 	}
+
+	logger.Info("start to build s-mart package")
 
 	if err := executor.Execute(); err != nil {
 		logger.Error(err, "failed to build s-mart package")
