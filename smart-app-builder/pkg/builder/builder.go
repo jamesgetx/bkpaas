@@ -29,8 +29,13 @@ func (b *buildExecutor) Execute() error {
 		return err
 	}
 
-	if _, err := PrepareBuildPlan(b.getSourceDir()); err != nil {
+	plan, err := PrepareBuildPlan(b.getSourceDir())
+	if err != nil {
 		return err
+	}
+
+	for _, step := range plan.Steps {
+		fmt.Printf("step: %+v\n", step)
 	}
 
 	return nil

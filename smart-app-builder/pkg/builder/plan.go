@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"golang.org/x/exp/maps"
 
 	"github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/appdesc"
 	bcfg "github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/appdesc/buildconfig"
@@ -18,7 +19,7 @@ const AppDescFileName = "app_desc.yaml"
 // BuildPlan 构建计划
 type BuildPlan struct {
 	Procfile map[string]string
-	Steps    []ModuleBuildStep
+	Steps    []*ModuleBuildStep
 }
 
 // ModuleBuildStep 模块构建步骤配置
@@ -75,18 +76,35 @@ func ensureAppDescYaml(sourceDir string) error {
 }
 
 // buildSteps 生成构建步骤
-func buildSteps(desc appdesc.AppDesc) ([]ModuleBuildStep, error) {
-	steps := make([]ModuleBuildStep, 0)
-
+func buildSteps(desc appdesc.AppDesc) ([]*ModuleBuildStep, error) {
 	configs, err := desc.GenerateModuleBuildConfig()
 	if err != nil {
 		return nil, err
 	}
 
+	stepMap := make(map[string]*ModuleBuildStep)
+
 	for _, cfg := range configs {
+		rBuildpacks, err := ToRequiredBuildpacks(cfg.Buildpacks)
+		if err != nil {
+			return nil, err
+		}
+
+		k := fmt.Sprintf("%s%s", cfg.SourceDir, rBuildpacks)
+		if v, ok := stepMap[k]; !ok {
+			stepMap[k] = &ModuleBuildStep{
+				SourceDir:          cfg.SourceDir,
+				RequiredBuildpacks: rBuildpacks,
+				ModuleNames:        []string{cfg.ModuleName},
+				Envs:               cfg.Envs,
+			}
+		} else {
+			v.ModuleNames = append(v.ModuleNames, cfg.ModuleName)
+			maps.Copy(v.Envs, cfg.Envs)
+		}
 	}
 
-	return nil, nil
+	return maps.Values(stepMap), nil
 }
 
 // ToRequiredBuildpacks 将 buildpacks 从 list 排序后, 转换成 string 结构.

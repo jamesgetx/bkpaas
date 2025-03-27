@@ -9,6 +9,7 @@ require (
 	github.com/blang/semver/v4 v4.0.0
 	github.com/go-logr/logr v1.4.2
 	github.com/pkg/errors v0.9.1
+	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c
 	gopkg.in/yaml.v3 v3.0.1
 )
 
