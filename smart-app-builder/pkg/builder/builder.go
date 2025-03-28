@@ -11,10 +11,11 @@ import (
 	"github.com/go-logr/logr"
 
 	"github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/handler"
+	"github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/plan"
 )
 
-// buildExecutor execute the process which build the source code to s-mart artifact
-type buildExecutor struct {
+// BuildExecutor execute the process which build the source code to s-mart artifact
+type BuildExecutor struct {
 	sourceURL string
 	destURL   string
 	handler   handler.RuntimeHandler
@@ -23,26 +24,30 @@ type buildExecutor struct {
 }
 
 // Execute run build process
-func (b *buildExecutor) Execute() error {
+func (b *BuildExecutor) Execute() error {
 	// 获取源码
 	if err := b.fetchSource(); err != nil {
 		return err
 	}
 
-	plan, err := PrepareBuildPlan(b.getSourceDir())
+	buildPlan, err := plan.PrepareBuildPlan(b.getSourceDir())
 	if err != nil {
 		return err
 	}
 
-	for _, step := range plan.Steps {
+	for _, step := range buildPlan.Steps {
 		fmt.Printf("step: %+v\n", step)
+	}
+
+	if err := b.handler.Build(buildPlan); err != nil {
+		return err
 	}
 
 	return nil
 }
 
 // fetchSource fetch the source code to sourceDir
-func (b *buildExecutor) fetchSource() error {
+func (b *BuildExecutor) fetchSource() error {
 	parsedURL, err := url.Parse(b.sourceURL)
 	if err != nil {
 		return err
@@ -85,15 +90,15 @@ func (b *buildExecutor) fetchSource() error {
 }
 
 // getSourceDir return the source code directory
-func (b *buildExecutor) getSourceDir() string {
+func (b *BuildExecutor) getSourceDir() string {
 	return b.handler.GetSourceDir()
 }
 
 // NewBuildExecutor create a new buildExecutor
-func NewBuildExecutor(logger logr.Logger, sourceURL, destURL string) (*buildExecutor, error) {
+func NewBuildExecutor(logger logr.Logger, sourceURL, destURL string) (*BuildExecutor, error) {
 	if h, err := handler.NewRuntimeHandler(); err != nil {
 		return nil, err
 	} else {
-		return &buildExecutor{logger: logger, sourceURL: sourceURL, destURL: destURL, handler: h}, nil
+		return &BuildExecutor{logger: logger, sourceURL: sourceURL, destURL: destURL, handler: h}, nil
 	}
 }

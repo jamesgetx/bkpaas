@@ -1,7 +1,7 @@
 package v3
 
 import (
-	"github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/buildconfig"
+	bcfg "github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/buildconfig"
 )
 
 // AppDescConfig specVersion: 3 版本的 app_desc
@@ -23,7 +23,7 @@ func (cfg *AppDescConfig) GenerateProcfile() map[string]string {
 }
 
 // GenerateModuleBuildConfig 生成 ModuleBuildConfig
-func (cfg *AppDescConfig) GenerateModuleBuildConfig() ([]buildconfig.ModuleBuildConfig, error) {
+func (cfg *AppDescConfig) GenerateModuleBuildConfig() ([]bcfg.ModuleBuildConfig, error) {
 	return nil, nil
 }
 
@@ -42,9 +42,9 @@ type ModuleDescription struct {
 
 // BkAppSpec bkapp spec
 type BkAppSpec struct {
-	Processes     []Process               `yaml:"processes"`
-	Configuration AppConfig               `yaml:"configuration"`
-	Build         buildconfig.BuildConfig `yaml:"build,omitempty"`
+	Processes     []Process        `yaml:"processes"`
+	Configuration AppConfig        `yaml:"configuration"`
+	Build         bcfg.BuildConfig `yaml:"build,omitempty"`
 }
 
 // Process 进程配置

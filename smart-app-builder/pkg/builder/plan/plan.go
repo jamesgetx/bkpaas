@@ -1,4 +1,4 @@
-package builder
+package plan
 
 import (
 	"fmt"
@@ -90,6 +90,7 @@ func buildSteps(desc appdesc.AppDesc) ([]*ModuleBuildStep, error) {
 			return nil, err
 		}
 
+		// 合并采用相同构建方案的模块
 		k := fmt.Sprintf("%s%s", cfg.SourceDir, rBuildpacks)
 		if v, ok := stepMap[k]; !ok {
 			stepMap[k] = &ModuleBuildStep{

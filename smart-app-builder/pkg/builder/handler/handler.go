@@ -6,6 +6,7 @@ import (
 	"github.com/TencentBlueking/bkpaas/cnb-builder-shim/pkg/utils"
 
 	"github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/handler/runtime"
+	"github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/plan"
 )
 
 // NewRuntimeHandler return RuntimeHandler by RUNTIME env. The RUNTIME env only support pind and dind, if not set,
@@ -30,4 +31,6 @@ type RuntimeHandler interface {
 	GetDestDir() string
 	// GetTmpDir return the tmp directory. The tmp directory is used to store saas module tgz
 	GetTmpDir() string
+	// Build will build the source code by plan
+	Build(buildPlan *plan.BuildPlan) error
 }

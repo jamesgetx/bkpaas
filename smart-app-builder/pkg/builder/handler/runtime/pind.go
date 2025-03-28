@@ -2,11 +2,20 @@ package runtime
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
+
+	"github.com/pkg/errors"
+
+	"github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/plan"
+	"github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/utils"
 )
 
 // pindHandler is build handler that runs in podman-in-docker mode
-type pindHandler struct{}
+type pindHandler struct {
+	// execPath is the path of podman command
+	execPath string
+}
 
 // GetSourceDir return the source code directory
 func (h *pindHandler) GetSourceDir() string {
@@ -21,6 +30,11 @@ func (h *pindHandler) GetDestDir() string {
 // GetTmpDir return the tmp directory. The tmp directory is used to store saas module tgz
 func (h *pindHandler) GetTmpDir() string {
 	return filepath.Join(h.getWorkspace(), "tmp")
+}
+
+func (h *pindHandler) Build(buildPlan *plan.BuildPlan) error {
+	args := []string{"info"}
+	return utils.RunCommand(h.execPath, args...)
 }
 
 func (h *pindHandler) getWorkspace() string {
@@ -40,7 +54,13 @@ func (h *pindHandler) initWorkspace() error {
 }
 
 func NewPindHandler() (*pindHandler, error) {
-	h := &pindHandler{}
+	execPath, err := exec.LookPath("podman")
+	if err != nil {
+		return nil, errors.New("podman command not found")
+	}
+
+	h := &pindHandler{execPath: execPath}
+
 	if err := h.initWorkspace(); err != nil {
 		return nil, err
 	}

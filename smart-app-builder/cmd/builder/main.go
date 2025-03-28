@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/TencentBlueking/bkpaas/cnb-builder-shim/pkg/logging"
-	"github.com/go-logr/logr"
-	flag "github.com/spf13/pflag"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 
 	"github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder"
+	"github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/config"
+	"github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/utils"
 )
 
 const (
@@ -16,25 +17,10 @@ const (
 	DestURLEnvVarKey   = "DEST_PUT_URL"
 )
 
-var (
-	sourceURL = flag.String(
-		"source-url",
-		os.Getenv(SourceURLEnvVarKey),
-		"The url of the source code, which begins with file:// or http(s)://",
-	)
-	destURL = flag.String(
-		"dest-url",
-		os.Getenv(DestURLEnvVarKey),
-		"The url of the s-mart artifact to put, which begins with file:// or http(s)://",
-	)
-)
-
 func main() {
-	logger := logging.Default()
+	logger := utils.GetLogger()
 
-	parseFlags(logger)
-
-	executor, err := builder.NewBuildExecutor(logger, *sourceURL, *destURL)
+	executor, err := builder.NewBuildExecutor(logger, config.G.SourceURL, config.G.DestURL)
 	if err != nil {
 		logger.Error(err, "failed to create build executor")
 		os.Exit(1)
@@ -50,10 +36,28 @@ func main() {
 	logger.Info("build s-mart package successfully")
 }
 
-func parseFlags(logger logr.Logger) {
-	flag.Parse()
+func init() {
+	pflag.String(
+		"source-url",
+		os.Getenv(SourceURLEnvVarKey),
+		"The url of the source code, which begins with file:// or http(s)://",
+	)
+	pflag.String(
+		"dest-url",
+		os.Getenv(DestURLEnvVarKey),
+		"The url of the s-mart artifact to put, which begins with file:// or http(s)://",
+	)
 
-	if *sourceURL == "" {
+	pflag.Parse()
+	viper.BindPFlags(pflag.CommandLine)
+	viper.AutomaticEnv()
+
+	// 设置全局配置
+	config.SetGlobalConfig()
+
+	logger := utils.GetLogger()
+
+	if config.G.SourceURL == "" {
 		logger.Error(
 			fmt.Errorf("sourceURL is empty"),
 			fmt.Sprintf(
@@ -64,7 +68,7 @@ func parseFlags(logger logr.Logger) {
 		os.Exit(1)
 	}
 
-	if *destURL == "" {
+	if config.G.DestURL == "" {
 		logger.Error(
 			fmt.Errorf("destURL is empty"),
 			fmt.Sprintf(

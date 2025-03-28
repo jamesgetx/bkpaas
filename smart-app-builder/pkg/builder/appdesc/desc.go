@@ -8,7 +8,7 @@ import (
 
 	descv2 "github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/appdesc/v2"
 	descv3 "github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/appdesc/v3"
-	"github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/buildconfig"
+	bcfg "github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/buildconfig"
 )
 
 // AppDesc app_desc
@@ -18,7 +18,7 @@ type AppDesc interface {
 	// GenerateProcfile 生成 Procfile
 	GenerateProcfile() map[string]string
 	// GenerateModuleBuildConfig 生成 ModuleBuildConfig
-	GenerateModuleBuildConfig() ([]buildconfig.ModuleBuildConfig, error)
+	GenerateModuleBuildConfig() ([]bcfg.ModuleBuildConfig, error)
 }
 
 // ParseAppDescYAML 解析 app_desc.yaml, 返回 AppDesc
