@@ -24,10 +24,14 @@ type BuildPlan struct {
 
 // ModuleBuildStep 模块构建步骤配置
 type ModuleBuildStep struct {
-	SourceDir          string
+	SourceDir string
+	// RequiredBuildpacks 格式如: tgz bk-buildpack-apt ... v2;tgz bk-buildpack-python ... v213
 	RequiredBuildpacks string
+	Buildpacks         []bcfg.Buildpack
+	BuildModuleName    string
 	ModuleNames        []string
 	Envs               map[string]string
+	OutPutImage        string
 }
 
 // PrepareBuildPlan 解析 app_desc.yaml 文件, 生成 BuildPlan
@@ -50,7 +54,7 @@ func PrepareBuildPlan(sourceDir string) (*BuildPlan, error) {
 		return nil, errors.New("no valid processes found in app_desc.yaml")
 	}
 
-	steps, err := buildSteps(desc)
+	steps, err := buildSteps(sourceDir, desc)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +80,7 @@ func ensureAppDescYaml(sourceDir string) error {
 }
 
 // buildSteps 生成构建步骤
-func buildSteps(desc appdesc.AppDesc) ([]*ModuleBuildStep, error) {
+func buildSteps(sourceDir string, desc appdesc.AppDesc) ([]*ModuleBuildStep, error) {
 	configs, err := desc.GenerateModuleBuildConfig()
 	if err != nil {
 		return nil, err
@@ -85,6 +89,11 @@ func buildSteps(desc appdesc.AppDesc) ([]*ModuleBuildStep, error) {
 	stepMap := make(map[string]*ModuleBuildStep)
 
 	for _, cfg := range configs {
+		if aptfileExists(filepath.Join(sourceDir, cfg.SourceDir)) {
+			bp, _ := bcfg.GetBuildpackByLanguage("apt")
+			cfg.Buildpacks = append(cfg.Buildpacks, *bp)
+		}
+
 		rBuildpacks, err := ToRequiredBuildpacks(cfg.Buildpacks)
 		if err != nil {
 			return nil, err
@@ -96,8 +105,11 @@ func buildSteps(desc appdesc.AppDesc) ([]*ModuleBuildStep, error) {
 			stepMap[k] = &ModuleBuildStep{
 				SourceDir:          cfg.SourceDir,
 				RequiredBuildpacks: rBuildpacks,
+				Buildpacks:         cfg.Buildpacks,
 				ModuleNames:        []string{cfg.ModuleName},
+				BuildModuleName:    cfg.ModuleName,
 				Envs:               cfg.Envs,
+				OutPutImage:        fmt.Sprintf("docker.io/local/%s:latest", cfg.ModuleName),
 			}
 		} else {
 			v.ModuleNames = append(v.ModuleNames, cfg.ModuleName)
@@ -133,4 +145,13 @@ func ToRequiredBuildpacks(buildpacks []bcfg.Buildpack) (string, error) {
 	}
 
 	return strings.Join(parts, ";"), nil
+}
+
+// aptfileExists 检测 Aptfile 是否存在
+func aptfileExists(moduleDir string) bool {
+	if _, err := os.Stat(filepath.Join(moduleDir, "Aptfile")); err != nil {
+		// 没有检测到有效的 Aptfile
+		return false
+	}
+	return true
 }

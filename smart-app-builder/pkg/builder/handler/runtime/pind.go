@@ -42,12 +42,7 @@ func (h *pindHandler) Build(buildPlan *plan.BuildPlan) error {
 		return err
 	}
 
-	for _, step := range buildPlan.Steps {
-		if err := buildSourceTarball(step.SourceDir, filepath.Join(h.GetTmpDir(), step.ModuleNames[0]), buildPlan.Procfile); err != nil {
-			return err
-		}
-	}
-	return nil
+	return runCNBBuilder(buildPlan, h.execPath, h.GetSourceDir(), h.GetTmpDir())
 }
 
 func (h *pindHandler) getWorkspace() string {
@@ -79,6 +74,7 @@ func (h *pindHandler) loadScratchImage() error {
 	return cmd.Run()
 }
 
+// NewPindHandler new pind handler
 func NewPindHandler() (*pindHandler, error) {
 	execPath, err := exec.LookPath("podman")
 	if err != nil {

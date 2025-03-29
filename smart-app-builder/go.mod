@@ -10,6 +10,7 @@ require (
 	github.com/go-logr/logr v1.4.2
 	github.com/mholt/archives v0.1.0
 	github.com/pkg/errors v0.9.1
+	github.com/samber/lo v1.49.1
 	github.com/spf13/viper v1.20.1
 	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c
 	gopkg.in/yaml.v3 v3.0.1
@@ -31,7 +32,6 @@ require (
 	github.com/klauspost/compress v1.17.11 // indirect
 	github.com/klauspost/pgzip v1.2.6 // indirect
 	github.com/mholt/archiver/v3 v3.5.1 // indirect
-	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/nwaples/rardecode v1.1.3 // indirect
 	github.com/nwaples/rardecode/v2 v2.0.0-beta.4.0.20241112120701-034e449c6e78 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
@@ -51,5 +51,4 @@ require (
 	go4.org v0.0.0-20230225012048-214862532bf5 // indirect
 	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
-	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 )

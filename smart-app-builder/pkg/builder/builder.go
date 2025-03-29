@@ -25,35 +25,31 @@ type BuildExecutor struct {
 
 // Execute run build process
 func (b *BuildExecutor) Execute() error {
+	sourceDir := b.handler.GetSourceDir()
+
 	// 获取源码
-	if err := b.fetchSource(); err != nil {
+	if err := b.fetchSource(sourceDir); err != nil {
 		return err
 	}
 
-	buildPlan, err := plan.PrepareBuildPlan(b.getSourceDir())
+	buildPlan, err := plan.PrepareBuildPlan(sourceDir)
 	if err != nil {
 		return err
 	}
 
 	for _, step := range buildPlan.Steps {
-		fmt.Printf("step: %+v\n", step)
+		fmt.Printf("step: %v\n", step)
 	}
 
-	if err := b.handler.Build(buildPlan); err != nil {
-		return err
-	}
-
-	return nil
+	return b.handler.Build(buildPlan)
 }
 
-// fetchSource fetch the source code to sourceDir
-func (b *BuildExecutor) fetchSource() error {
+// fetchSource fetch the source code to destDir
+func (b *BuildExecutor) fetchSource(destDir string) error {
 	parsedURL, err := url.Parse(b.sourceURL)
 	if err != nil {
 		return err
 	}
-
-	sourceDir := b.getSourceDir()
 
 	switch parsedURL.Scheme {
 	case "file":
@@ -65,21 +61,21 @@ func (b *BuildExecutor) fetchSource() error {
 		}
 
 		if !fileInfo.IsDir() {
-			if err = fs.NewFetcher(b.logger).Fetch(filePath, sourceDir); err != nil {
+			if err = fs.NewFetcher(b.logger).Fetch(filePath, destDir); err != nil {
 				return err
 			} else {
 				return nil
 			}
 		}
 
-		// 如果是文件目录, 目录不同时, 直接将源码拷贝到 sourceDir 下
-		if filePath != sourceDir {
-			return utils.CopyDir(filePath, sourceDir)
+		// 如果是文件目录, 目录不同时, 直接将源码拷贝到 destDir 下
+		if filePath != destDir {
+			return utils.CopyDir(filePath, destDir)
 		}
 		return nil
 
 	case "http", "https":
-		if err := http.NewFetcher(b.logger).Fetch(b.sourceURL, sourceDir); err != nil {
+		if err := http.NewFetcher(b.logger).Fetch(b.sourceURL, destDir); err != nil {
 			return err
 		}
 	default:
@@ -87,11 +83,6 @@ func (b *BuildExecutor) fetchSource() error {
 	}
 
 	return nil
-}
-
-// getSourceDir return the source code directory
-func (b *BuildExecutor) getSourceDir() string {
-	return b.handler.GetSourceDir()
 }
 
 // NewBuildExecutor create a new buildExecutor

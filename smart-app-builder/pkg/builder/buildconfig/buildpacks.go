@@ -38,3 +38,31 @@ func GetDefaultVersionByBPName(name string) (string, error) {
 	}
 	return "", fmt.Errorf("no buildpacks match with name: %s", name)
 }
+
+// BuildpacksEnvs buildpacks 的环境变量
+func BuildpacksEnvs(name string) []string {
+	var envs []string
+	switch name {
+	case "bk-buildpack-python":
+		envs = append(envs,
+			"PIP_VERSION=20.2.3",
+			"DISABLE_COLLECTSTATIC=1",
+			"BUILDPACK_S3_BASE_URL=https://bkpaas-runtimes-1252002024.file.myqcloud.com/python",
+			"PIP_INDEX_URL=https://mirrors.cloud.tencent.com/pypi/simple/",
+			"PIP_EXTRA_INDEX_URL=https://mirrors.tencent.com/tencent_pypi/simple/",
+		)
+		break
+	case "bk-buildpack-nodejs":
+		envs = append(
+			envs,
+			"STDLIB_FILE_URL=https://bkpaas-runtimes-1252002024.file.myqcloud.com/common/buildpack-stdlib/bk-node/stdlib.sh",
+			"S3_DOMAIN=https://bkpaas-runtimes-1252002024.file.myqcloud.com/nodejs/node/release/linux-x64/",
+			"NPM_REGISTRY=https://mirrors.tencent.com/npm/",
+		)
+		break
+	case "bk-buildpack-go":
+		envs = append(envs, "GO_BUCKET_URL=https://bkpaas-runtimes-1252002024.file.myqcloud.com/golang")
+		break
+	}
+	return envs
+}
