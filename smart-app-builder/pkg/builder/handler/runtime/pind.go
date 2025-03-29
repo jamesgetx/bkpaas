@@ -7,6 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/config"
 	"github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/plan"
 	"github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/utils"
 )
@@ -33,13 +34,24 @@ func (h *pindHandler) GetTmpDir() string {
 }
 
 func (h *pindHandler) Build(buildPlan *plan.BuildPlan) error {
-	args := []string{"info"}
-	return utils.RunCommand(h.execPath, args...)
+	if err := h.startDaemon(); err != nil {
+		return err
+	}
+
+	if err := h.loadScratchImage(); err != nil {
+		return err
+	}
+
+	for _, step := range buildPlan.Steps {
+		if err := buildSourceTarball(step.SourceDir, filepath.Join(h.GetTmpDir(), step.ModuleNames[0]), buildPlan.Procfile); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (h *pindHandler) getWorkspace() string {
-	// return "/podman/smart-app"
-	return "/Users/jamesge/Downloads/podman/smart-app"
+	return config.G.RuntimeWorkspace
 }
 
 // initWorkspace init workspace
@@ -49,8 +61,22 @@ func (h *pindHandler) initWorkspace() error {
 			return err
 		}
 	}
-
 	return nil
+}
+
+// startDaemon start podman daemon
+func (h *pindHandler) startDaemon() error {
+	cmd := utils.Command(h.execPath, "system", "service", "--time", "0")
+	if err := startDaemon(cmd); err != nil {
+		return err
+	}
+	return nil
+}
+
+// loadScratchImage load scratch image
+func (h *pindHandler) loadScratchImage() error {
+	cmd := utils.Command(h.execPath, "load", "-i", config.G.ScratchImageTarPath)
+	return cmd.Run()
 }
 
 func NewPindHandler() (*pindHandler, error) {

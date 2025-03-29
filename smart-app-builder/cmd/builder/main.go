@@ -4,12 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
-
 	"github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder"
 	"github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/builder/config"
 	"github.com/TencentBlueking/bkpaas/smart-app-builder/pkg/utils"
+	"github.com/spf13/pflag"
 )
 
 const (
@@ -49,8 +47,6 @@ func init() {
 	)
 
 	pflag.Parse()
-	viper.BindPFlags(pflag.CommandLine)
-	viper.AutomaticEnv()
 
 	// 设置全局配置
 	config.SetGlobalConfig()

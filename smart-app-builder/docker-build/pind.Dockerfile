@@ -11,7 +11,19 @@ ADD ./pkg ./pkg
 
 RUN go build -ldflags '-extldflags "-static" -w -s' -o smart-app-builder ./cmd/builder
 
-FROM mgoltzsche/podman:rootless
+FROM mgoltzsche/podman:5.4.0
 
 WORKDIR /podman
+
 COPY --from=builder /builder/smart-app-builder /usr/local/bin/smart-app-builder
+
+COPY ./docker-build/runner-scratch.tar /podman/runner-scratch.tar
+
+ENV RUNTIME_WORKSPACE=/podman/smart-app DAEMON_SOCK=/tmp/storage-run-1000/podman/podman.sock \
+    RUNTIME_IMAGE=/podman/runner-scratch.tar SCRATCH_IMAGE_TAR_PATH=/podman/runner-scratch.tar \
+    SCRATCH_IMAGE=docker.io/library/cnb-runner:scratch
+
+# 切换至 podman 用户, 使用 rootless 模式
+USER podman
+
+#ENTRYPOINT ["/usr/local/bin/smart-app-builder"]

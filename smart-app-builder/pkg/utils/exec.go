@@ -5,10 +5,10 @@ import (
 	"os/exec"
 )
 
-// RunCommand runs a command
-func RunCommand(name string, args ...string) error {
+// Command return a new command
+func Command(name string, args ...string) *exec.Cmd {
 	cmd := exec.Command(name, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	return cmd.Run()
+	return cmd
 }
